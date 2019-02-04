@@ -1,5 +1,9 @@
 #include "gpio_controller.hpp"
 
+#include <device.h>
+
+using namespace zeta;
+
 GPIOController GPIOController::m_instance = GPIOController();
 
 GPIOController::GPIOController() : m_device(nullptr)
@@ -9,15 +13,16 @@ GPIOController::GPIOController() : m_device(nullptr)
         m_pins[i] = nullptr;
     }
 }
-void GPIOController::init(PinInput *pin_input)
+void GPIOController::init(const char *controller)
 {
-    if (pin_input && m_device == nullptr) {
-        m_device = pin_input->device();
+    m_device = device_get_binding(controller);
+    if (!m_device) {
+        // ERROR
+    } else {
         gpio_add_callback(m_device, &m_gpio_cb);
     }
-    this->add_callback(pin_input);
 }
-int GPIOController::add_callback(PinInput *pin_input)
+int GPIOController::add_callback(DigitalInput *pin_input)
 {
     m_pin_mask = m_pin_mask | BIT(pin_input->pin());
     gpio_init_callback(&m_gpio_cb, &GPIOController::changed, m_pin_mask);

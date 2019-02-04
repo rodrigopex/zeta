@@ -14,14 +14,14 @@
 
 #define MAX_INPUT_PINS 4
 
-#include "pin_interface.hpp"
+#include "property.hpp"
 
 
 class GPIOController
 {
    public:
-    void init(PinInput *pin_input);
-    int add_callback(PinInput *pin_input);
+    void init(const char *controller);
+    int add_callback(zeta::DigitalInput *pin_input);
     static void changed(struct device *dev, struct gpio_callback *cb, u32_t pins)
     {
         GPIOController *c = GPIOController::instance();
@@ -40,7 +40,7 @@ class GPIOController
     GPIOController();
     struct gpio_callback m_gpio_cb;
     struct device *m_device;
-    PinInput *m_pins[MAX_INPUT_PINS];
+    zeta::DigitalInput *m_pins[MAX_INPUT_PINS];
     static GPIOController m_instance;
     u32_t m_pin_mask;
 };
