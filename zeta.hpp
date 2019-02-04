@@ -16,7 +16,7 @@
 #define ZT_ALLOC_BYTES(x) (u8_t *) alloca(x)
 #define ZT_ALLOC_BYTE() (u8_t *) alloca(1)
 
-#define MAX_INPUT_PINS 4
+#define ZT_MAX_OBSERVERS 4
 
 typedef enum {
     VOLATILE_FLAG  = 0,
@@ -110,32 +110,33 @@ class DigitalOutput : public HardProperty
 
 
 /* GPIOController */
+
+#define ZT_CALLBACK_GENERATE(name)                                     \
+    [name](struct device *dev, struct gpio_callback *cb, u32_t pins) { \
+        name.notifyObservers(dev, pins);                               \
+    }
+
+typedef void (*gpio_callback_t)(struct device *dev, struct gpio_callback *cb, u32_t pins);
 class GPIOController
 {
    public:
-    void init(const char *controller);
-    int add_callback(zt::DigitalInput *pin_input);
-    static void changed(struct device *dev, struct gpio_callback *cb, u32_t pins)
+    GPIOController(const char *controller, gpio_callback_t gpio_callback);
+    int add_observer(zt::DigitalInput *pin_input);
+    void notifyObservers(struct device *dev, u32_t pins)
     {
-        GPIOController *c = GPIOController::instance();
-        for (u8_t i = 0; c->m_pins[i] && (i < MAX_INPUT_PINS); i++) {
-            if (BIT(c->m_pins[i]->pin()) & pins) {
-                c->m_pins[i]->callback();
+        for (u8_t i = 0; m_observers[i] && (i < ZT_MAX_OBSERVERS); i++) {
+            if (BIT(m_observers[i]->pin()) & pins) {
+                m_observers[i]->callback();
             }
         }
     }
-    static GPIOController *instance()
-    {
-        return &m_instance;
-    }
 
    private:
-    GPIOController();
+    gpio_callback_t m_gpio_callback;
     struct gpio_callback m_gpio_cb;
-    struct device *m_device;
-    zt::DigitalInput *m_pins[MAX_INPUT_PINS];
-    static GPIOController m_instance;
-    u32_t m_pin_mask;
+    struct device *m_device                         = nullptr;
+    zt::DigitalInput *m_observers[ZT_MAX_OBSERVERS] = {nullptr};
+    u32_t m_pin_mask                                = 0;
 };
 
 }  // namespace zt
