@@ -1,6 +1,6 @@
 #include "property.hpp"
 
-namespace zeta
+namespace zt
 {
 u8_t *Property::data()
 {
@@ -152,4 +152,4 @@ u32_t DigitalOutput::pin()
     return m_pin;
 }
 
-}  // namespace zeta
+}  // namespace zt

@@ -2,7 +2,7 @@
 
 #include <device.h>
 
-using namespace zeta;
+using namespace zt;
 
 GPIOController GPIOController::m_instance = GPIOController();
 

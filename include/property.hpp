@@ -13,7 +13,7 @@ typedef enum {
     READ_ONLY_FLAG = 1 << 1
 } PropertyFlag;
 
-namespace zeta
+namespace zt
 {
 class Property
 {
@@ -96,4 +96,4 @@ class DigitalOutput : public HardProperty
     struct device *device();
     u32_t pin();
 };
-}  // namespace zeta
+}  // namespace zt
